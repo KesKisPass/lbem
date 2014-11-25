@@ -14,9 +14,17 @@ source 'https://rubygems.org'
 gem 'rake'
 
 # Component requirements
+gem 'bcrypt'
 gem 'haml'
+gem 'mongoid', '~>3.0.0'
+gem 'unicorn', '~>4.8.3'
+
+gem 'pry'
+#require 'pry-padrino'
 
 # Test requirements
+gem 'rspec', :group => 'test'
+gem 'rack-test', :require => 'rack/test', :group => 'test'
 
 # Padrino Stable Gem
 gem 'padrino', '0.12.4'

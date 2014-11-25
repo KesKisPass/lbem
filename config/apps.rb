@@ -27,10 +27,12 @@
 #
 Padrino.configure_apps do
   # enable :sessions
-  set :session_secret, '2c965658dc756c9c41dcac3694355adec20a8813ad9a51d9e3e0e58a8ee2904e'
+  set :session_secret, 'd92f1fe4c90101ffd9673d8edb55a3d419541d004a673f170d3075f60c664722'
   set :protection, :except => :path_traversal
   set :protect_from_csrf, true
 end
 
 # Mounts the core application for this project
+
+Padrino.mount("Lbem::Admin", :app_file => Padrino.root('admin/app.rb')).to("/admin")
 Padrino.mount('Lbem::App', :app_file => Padrino.root('app/app.rb')).to('/')

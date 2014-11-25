@@ -1,0 +1,31 @@
+- error = @account.errors.include?(:name)
+%fieldset.control-group{:class => error ? 'has-error' : ''}
+	=f.label :nickname, :class => 'control-label'
+	.controls
+		=f.text_field :nickname, :class => 'form-control input-large input-with-feedback', :autofocus => true
+		%span.help-inline=error ? f.error_message_on(:nickname, :class => 'text-error') : pat(:example)
+- error = @account.errors.include?(:email)
+%fieldset.control-group{:class => error ? 'has-error' : ''}
+	=f.label :email, :class => 'control-label'
+	.controls
+		=f.text_field :email, :class => 'form-control input-large input-with-feedback'
+		%span.help-inline=error ? f.error_message_on(:email, :class => 'text-error') : pat(:example)
+- error = @account.errors.include?(:password)
+%fieldset.control-group{:class => error ? 'has-error' : ''}
+	=f.label :password, :class => 'control-label'
+	.controls
+		=f.password_field :password, :class => 'form-control input-large input-with-feedback'
+		%span.help-inline=error ? f.error_message_on(:password, :class => 'text-error') : pat(:example)
+- error = @account.errors.include?(:password_confirmation)
+%fieldset.control-group{:class => error ? 'has-error' : ''}
+	=f.label :password_confirmation, :class => 'control-label'
+	.controls
+		=f.password_field :password_confirmation, :class => 'form-control input-large input-with-feedback'
+		%span.help-inline=error ? f.error_message_on(:password_confirmation, :class => 'text-error') : pat(:example)
+
+.form-actions
+	=f.submit pat(:save), :class => 'btn btn-primary'
+	&nbsp;
+	=f.submit pat(:save_and_continue), :class => 'btn btn-info', :name => 'save_and_continue'
+	&nbsp;
+	=link_to pat(:cancel), url(:users, :index), :class => 'btn btn-default'

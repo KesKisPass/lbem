@@ -1,9 +1,10 @@
 ---
-:orm: none
-:test: none
+:orm: mongoid
+:test: rspec
 :mock: none
 :script: none
 :renderer: haml
 :stylesheet: none
 :namespace: Lbem
 :migration_format: number
+:admin_renderer: haml
