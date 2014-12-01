@@ -41,14 +41,33 @@ module Lbem
     # layout  :my_layout            # Layout can be in views/layouts/foo.ext or views/foo.ext (default :application)
     #
 
+    set :protection, :except => :path_traversal
+
     ##
-    # You can configure for a specified environment like:
-    #
-    #   configure :development do
-    #     set :foo, :bar
-    #     disable :asset_stamp # no asset timestamping for dev
-    #   end
-    #
+    # Exceptions
+    configure  :production do
+        set :show_exceptions, false
+        set :exceptions_from, "pfa2017@gmail.com"
+        set :exceptions_to, 'pfa2017@gmail.com'
+    end
+
+    configure :development do
+        set :show_exceptions, true
+    end
+
+    ##
+    # Static domain
+    set :base_url, 'http://keskispass.herokuapp.com/login'
+    set :protection, except: [:session_hijacking, :json_csrf]
+    set :protection, :origin_whitelist => ['http://keskispass.herokuapp.com/', 'https://keskispass.herokuapp.com/', 'http://staging.keskispass.herokuapp.com/', 'https://staging.keskispass.herokuapp.com/']
+
+    configure :staging do
+        set :base_url, 'http://staging.keskispass.herokuapp.com'
+    end
+
+    configure :development do
+        set :base_url, 'http://localhost:5000'
+    end
 
     ##
     # You can manage errors like:
