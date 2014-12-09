@@ -59,7 +59,7 @@ module Lbem
     # Static domain
     set :base_url, 'http://keskispass.herokuapp.com/login'
     set :protection, except: [:session_hijacking, :json_csrf]
-    set :protection, :origin_whitelist => ['http://keskispass.herokuapp.com/', 'https://keskispass.herokuapp.com/', 'http://staging.keskispass.herokuapp.com/', 'https://staging.keskispass.herokuapp.com/']
+    set :protection, :origin_whitelist => ['http://keskispass.herokuapp.com/', 'https://keskispass.herokuapp.com/', 'http://staging-keskispass.herokuapp.com/', 'https://staging-keskispass.herokuapp.com/']
 
     configure :staging do
         set :base_url, 'http://staging-keskispass.herokuapp.com'

@@ -73,28 +73,20 @@ class User
 	# @return [Hash]
 	# @note called from controler login
 	def self.create_from_form(params)
-		# missing ?
-		missing = required_parameters(:create)[:keys] - params.keys
-		raise 'Missing parameters' if missing.present?
+		[
+			{ msg: 'Missing parameters',				rule: lambda { |p| ( required_parameters(:create)[:keys] - p.keys ).empty? } },
+			{ msg: 'Password confirmation failed',	rule: lambda { |p| p['password'] == p['password_confirmation'] } },
+			{ msg: 'Email don\'t respect format',		rule: lambda { |p| p['email'] =~ User.format_of(:email) } },
+			{ msg: 'Nickname don\'t respect format', rule: lambda { |p| p['nickname'] =~ User.format_of(:nickname) } },
+			{ msg: 'Email already taken',				rule: lambda { |p| User.where(email: p['email']).empty? } },
+			{ msg: 'Nickname already taken',			rule: lambda { |p| User.where(nickname: p['nickname']).empty? } }
+		].each { |r| raise r[:msg] unless r[:rule].call(params) }
 
-		# confirmed_password ?
-		raise 'Password confirmation failed' unless params[:password] == params[:password_confirmation]
-
-		# works ?
 		attributes = {}
 		params[:password] = encrypt_password params[:password]
-		required_parameters(:create).each { |p| attributes[p] = params[p] unless p == 'password_confirmation' }
-		u = User.new(attributes)
-		return { success: true, text: "Registration succeed" } if u.save
-
-		# defining errors
-		errors = []
-		errors << 'email already taken' unless User.find_by(email: params['email']).nil?
-		errors << 'nickname already taken' unless User.find_by(nickname: params['nickname']).nil?
-		errors << 'email don\'t respect format' if ( params[:email] =~ User.format_of(:email) ).nil?
-		errors << 'nickname don\'t respect format' if ( params[:nickname] =~ User.format_of(:nickname) ).nil?
-		errors << 'internal error' if errors.empty?
-		raise "Error#{'s' if errors.count > 1} : #{errors.join(', ')}"
+		( required_parameters(:create)[:keys] - ['password_confirmation'] ).each { |p| attributes[p] = params[p] }
+		raise 'Internal server error' unless User.new(attributes).save
+		{ success: true, text: "Registration succeed" }
 	end
 
 end
