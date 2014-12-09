@@ -8,13 +8,11 @@ class User
 
 	validates_presence_of		:email
 	validates_uniqueness_of	:email,    	case_sensitive: false
-	validates_format_of			:email,    	with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i
+	validates_format_of		:email,    	with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i
 
 	validates_presence_of		:nickname
 	validates_uniqueness_of	:nickname,	case_sensitive: true
-	validates_format_of			:nickname,	with: /[A-Za-z]{1,10}/
-
-	has_and_belongs_to_many	:users
+	validates_format_of		:nickname,	with: /[A-Za-z]{1,10}/
 
 	def to_s
 		"#{nickname} '#{email}'"
@@ -34,6 +32,13 @@ class User
 		::BCrypt::Password.new(password) == to_check
 	end
 
+	def self.format_of( fmt )
+		{
+			email: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i ,
+			nickname: /[A-Za-z]{1,10}/ ,
+		}[ fmt ]
+	end
+
 # Creation
 
 	# get the required parameters for User creation
@@ -43,10 +48,23 @@ class User
 	# @return [Array] names of parameters to provide
 	def self.required_parameters(action)
 		{
-			create: [ 'email', 'nickname', 'password', 'password_confirmation' ],
-			check: [ 'email', 'password' ],
-			password_modif: [ 'actual_password', 'new_password', 'new_password_confirmation' ]
+			create: {
+				keys: [ 'email', 'nickname', 'password', 'password_confirmation' ],
+				names: [ 'Email', 'Nickname', 'Password', 'Password confirmation' ]
+			},
+			check: {
+				keys: [ 'email', 'password' ],
+				names: [ 'Email', 'Password' ]
+			},
+			password_modif: {
+				keys: [ 'actual_password', 'new_password', 'new_password_confirmation' ],
+				names: [ 'Actual assword', 'New password', 'New password confirmation' ]
+			}
 		}[ action ]
+	end
+
+	def self.encrypt_password(to_save)
+		::BCrypt::Password.create(to_save)
 	end
 
 	# create a user from params. Also check uniqueness first
@@ -56,12 +74,16 @@ class User
 	# @note called from controler login
 	def self.create_from_form(params)
 		# missing ?
-		missing = required_parameters(:create) - params.keys
-		return { success: false, text: "Missing parameters : #{missing.map { |o| o.gsub('_', ' ') }.join(', ')}" } if missing.present?
+		missing = required_parameters(:create)[:keys] - params.keys
+		raise 'Missing parameters' if missing.present?
+
+		# confirmed_password ?
+		raise 'Password confirmation failed' unless params[:password] == params[:password_confirmation]
 
 		# works ?
 		attributes = {}
-		required_parameters(:create).each { |p| attributes[p] = params[p] }
+		params[:password] = encrypt_password params[:password]
+		required_parameters(:create).each { |p| attributes[p] = params[p] unless p == 'password_confirmation' }
 		u = User.new(attributes)
 		return { success: true, text: "Registration succeed" } if u.save
 
@@ -69,8 +91,10 @@ class User
 		errors = []
 		errors << 'email already taken' unless User.find_by(email: params['email']).nil?
 		errors << 'nickname already taken' unless User.find_by(nickname: params['nickname']).nil?
+		errors << 'email don\'t respect format' if ( params[:email] =~ User.format_of(:email) ).nil?
+		errors << 'nickname don\'t respect format' if ( params[:nickname] =~ User.format_of(:nickname) ).nil?
 		errors << 'internal error' if errors.empty?
-		{ success: false, text: "Registration failed : #{errors.join(', ')}" }
+		raise "Error#{'s' if errors.count > 1} : #{errors.join(', ')}"
 	end
 
 end

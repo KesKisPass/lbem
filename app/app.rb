@@ -62,7 +62,7 @@ module Lbem
     set :protection, :origin_whitelist => ['http://keskispass.herokuapp.com/', 'https://keskispass.herokuapp.com/', 'http://staging.keskispass.herokuapp.com/', 'https://staging.keskispass.herokuapp.com/']
 
     configure :staging do
-        set :base_url, 'http://staging.keskispass.herokuapp.com'
+        set :base_url, 'http://staging-keskispass.herokuapp.com'
     end
 
     configure :development do

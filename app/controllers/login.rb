@@ -14,7 +14,7 @@ Lbem::App.controllers :login do
 	# for more generics, gives the fields the user must fill
 	#
 	# @return [String] a json string representing a hash
-	# @note the hash provide for key 'fields' an array of fields' names the user must provide
+	# @note the hash provide for key 'fields' a hash containing an array of fields' names the user must provide and their key
 	get :form, map: 'login/create/form' do
 		{ fields: User.required_parameters(:create) }.to_json
 	end
@@ -26,7 +26,11 @@ Lbem::App.controllers :login do
 	# @param password_confirmation [String]
 	# @return [String] a json string reprensenting a map with keys 'success' (boolean) and 'text' (string)
 	post :create do
-		User.create_from_form(params).to_json
+		begin
+			User.create_from_form(params)
+		rescue => e
+			{ success: false, text: e }
+		end.to_json
 	end
 
 	## Authentification
@@ -47,12 +51,9 @@ Lbem::App.controllers :login do
 	# @param password [String]
 	# @return [String] a json string reprensenting a map with keys 'success' (boolean)
 	post :check do
-		if user = User.authenticate(params[:email], params[:password])
-			set_current_user(user)
-			{ success: true }.to_json
-		else
-			{ success: false }.to_json
-		end
+		user = User.authenticate(params[:email], params[:password])
+		set_current_user(user)
+		{ success: !!user }.to_json
 	end
 
 	## Log out
@@ -61,7 +62,6 @@ Lbem::App.controllers :login do
 	#
 	delete :index do
 		sign_out
-		"Good bye".to_json
 	end
 
 end

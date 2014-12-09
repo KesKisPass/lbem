@@ -18,6 +18,7 @@ gem 'bcrypt'
 gem 'haml'
 gem 'mongoid', '~>3.0.0'
 gem 'unicorn', '~>4.8.3'
+gem 'dotenv'
 
 gem 'pry'
 #require 'pry-padrino'
