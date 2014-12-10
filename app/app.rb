@@ -51,6 +51,12 @@ module Lbem
         set :exceptions_to, 'pfa2017@gmail.com'
     end
 
+    configure :staging do
+        set :show_exceptions, false
+        set :exceptions_from, "pfa2017@gmail.com"
+        set :exceptions_to, 'pfa2017@gmail.com'
+    end
+
     configure :development do
         set :show_exceptions, true
     end
