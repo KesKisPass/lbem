@@ -64,7 +64,7 @@ class User
 	end
 
 	def self.encrypt_password(to_save)
-		::BCrypt::Password.create(to_save)
+		::BCrypt::Password.create(to_save).to_s
 	end
 
 	# create a user from params. Also check uniqueness first
@@ -83,7 +83,7 @@ class User
 		].each { |r| raise ArgumentError, r[:msg] unless r[:rule].call(params) }
 
 		attributes = {}
-		params[:password] = encrypt_password params[:password]
+		params['password'] = encrypt_password(params['password'])
 		( required_parameters(:create)[:keys] - ['password_confirmation'] ).each { |p| attributes[p] = params[p] }
 		raise ArgumentError, 'Internal server error' unless User.new(attributes).save
 		{ success: true, text: "Registration succeed" }
