@@ -80,7 +80,7 @@ class User
 			{ msg: 'Nickname don\'t respect format', rule: lambda { |p| p['nickname'] =~ User.format_of(:nickname) } },
 			{ msg: 'Email already taken',				rule: lambda { |p| User.where(email: p['email']).empty? } },
 			{ msg: 'Nickname already taken',			rule: lambda { |p| User.where(nickname: p['nickname']).empty? } }
-		].each { |r| raise r[:msg] unless r[:rule].call(params) }
+		].each { |r| raise ArgumentError, r[:msg] unless r[:rule].call(params) }
 
 		attributes = {}
 		params[:password] = encrypt_password params[:password]

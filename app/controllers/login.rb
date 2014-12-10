@@ -28,8 +28,8 @@ Lbem::App.controllers :login do
 	post :create do
 		begin
 			User.create_from_form(params)
-		rescue => e
-			{ success: false, text: e }
+		rescue ArgumentError => e
+			{ success: false, text: e.message }
 		end.to_json
 	end
 
