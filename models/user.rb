@@ -85,7 +85,7 @@ class User
 		attributes = {}
 		params[:password] = encrypt_password params[:password]
 		( required_parameters(:create)[:keys] - ['password_confirmation'] ).each { |p| attributes[p] = params[p] }
-		raise 'Internal server error' unless User.new(attributes).save
+		raise ArgumentError, 'Internal server error' unless User.new(attributes).save
 		{ success: true, text: "Registration succeed" }
 	end
 
