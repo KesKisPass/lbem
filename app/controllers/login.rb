@@ -16,7 +16,8 @@ Lbem::App.controllers :login do
 	# @return [String] a json string representing a hash
 	# @note the hash provide for key 'fields' a hash containing an array of fields' names the user must provide and their key
 	get :form, map: 'login/create/form' do
-		{ fields: User.required_parameters(:create) }.to_json
+		@create_form = { fields: User.required_parameters(:create) }
+		@create_form.to_json
 	end
 
 	# creates a user
@@ -26,11 +27,12 @@ Lbem::App.controllers :login do
 	# @param password_confirmation [String]
 	# @return [String] a json string reprensenting a map with keys 'success' (boolean) and 'text' (string)
 	post :create do
-		begin
+		@create_from_form = begin
 			User.create_from_form(params)
 		rescue ArgumentError => e
 			{ success: false, text: e.message }
-		end.to_json
+		end
+		@create_from_form.to_json
 	end
 
 	## Authentification
@@ -42,7 +44,8 @@ Lbem::App.controllers :login do
 	# @note it returns a json string representing a map.
 	# @note the map provide for key 'fields' an array of fields' names the user must provide
 	get :form, map: 'login/check/form' do
-		{ fields: User.required_parameters(:check) }.to_json
+		@check_form = { fields: User.required_parameters(:check) }
+		@check_form.to_json
 	end
 
 	# log a user if authentification succeed
@@ -53,7 +56,8 @@ Lbem::App.controllers :login do
 	post :check do
 		user = User.authenticate(params[:email], params[:password])
 		set_current_user(user)
-		{ success: !!user }.to_json
+		@check = { success: !!user }
+		@check.to_json
 	end
 
 	## Log out
