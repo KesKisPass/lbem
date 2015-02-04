@@ -46,33 +46,37 @@ module Lbem
     ##
     # Exceptions
     configure  :production do
-        set :show_exceptions, false
-        set :exceptions_from, "pfa2017@gmail.com"
-        set :exceptions_to, 'pfa2017@gmail.com'
+      set :show_exceptions, false
+      set :exceptions_from, "pfa2017@gmail.com"
+      set :exceptions_to, 'pfa2017@gmail.com'
     end
 
     configure :staging do
-        set :show_exceptions, false
-        set :exceptions_from, "pfa2017@gmail.com"
-        set :exceptions_to, 'pfa2017@gmail.com'
+      set :show_exceptions, false
+      set :exceptions_from, "pfa2017@gmail.com"
+      set :exceptions_to, 'pfa2017@gmail.com'
     end
 
     configure :development do
-        set :show_exceptions, true
+      set :show_exceptions, true
     end
 
     ##
     # Static domain
-    set :base_url, 'http://keskispass.herokuapp.com/login'
-    set :protection, except: [:session_hijacking, :json_csrf]
-    set :protection, :origin_whitelist => ['http://keskispass.herokuapp.com/', 'https://keskispass.herokuapp.com/', 'http://staging-keskispass.herokuapp.com/', 'https://staging-keskispass.herokuapp.com/']
+    configure :production do
+      set :base_url, 'http://keskispass.herokuapp.com/login'
+      set :protection, except: [:session_hijacking, :json_csrf]
+      set :protection, :origin_whitelist => ['http://keskispass.herokuapp.com/', 'https://keskispass.herokuapp.com/']
+    end
 
     configure :staging do
-        set :base_url, 'http://staging-keskispass.herokuapp.com'
+      set :base_url, 'http://staging-keskispass.herokuapp.com'
+      set :protection, except: [:session_hijacking, :json_csrf]
+      set :protection, :origin_whitelist => ['http://staging-keskispass.herokuapp.com/', 'https://staging-keskispass.herokuapp.com/']
     end
 
     configure :development do
-        set :base_url, 'http://localhost:5000'
+      set :base_url, 'http://localhost:5000'
     end
 
     ##
@@ -86,5 +90,16 @@ module Lbem
     #     render 'errors/500'
     #   end
     #
+
+    # global filters
+
+    before do
+      set_current_user User.authenticate_with_token(params[:token]) if params[:token].present? and !current_user
+    end
+
+    before except: /\/login/ do
+      params.delete :token
+    end
+
   end
 end

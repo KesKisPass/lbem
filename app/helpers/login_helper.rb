@@ -19,7 +19,8 @@ module Lbem
 			end
 
 			def ensure_authenticated!
-				error_json 401, 'Wrong token' unless signed_in?
+				# error_json 401, 'Wrong token' unless signed_in?
+				error 401, 'Wrong token' unless signed_in?
 			end
 
 			def sign_out

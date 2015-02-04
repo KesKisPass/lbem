@@ -15,9 +15,9 @@ Lbem::App.controllers :login do
 	#
 	# @return [String] a json string representing a hash
 	# @note the hash provide for key 'fields' a hash containing an array of fields' names the user must provide and their key
-	get :form, map: 'login/create/form' do
-		@create_form = { fields: User.required_parameters(:create) }
-		@create_form.to_json
+	get :create do
+		@fields = User.required_parameters(:create)
+		{ fields: @fields }.to_json
 	end
 
 	# creates a user
@@ -27,45 +27,55 @@ Lbem::App.controllers :login do
 	# @param password_confirmation [String]
 	# @return [String] a json string reprensenting a map with keys 'success' (boolean) and 'text' (string)
 	post :create do
-		@create_from_form = begin
+		begin
 			User.create_from_form(params)
+			blank_json
 		rescue ArgumentError => e
-			{ success: false, text: e.message }
+			error 400, e.message
+		rescue Exception => e
+			error 500, e.message
 		end
-		@create_from_form.to_json
 	end
 
 	## Authentification
 
-	# get form for authentification
+	## get form for authentification
 	# for more generics, gives the fields the user must fill
 	#
 	# @return [String]
 	# @note it returns a json string representing a map.
 	# @note the map provide for key 'fields' an array of fields' names the user must provide
-	get :form, map: 'login/check/form' do
-		@check_form = { fields: User.required_parameters(:check) }
-		@check_form.to_json
+	get :check do
+		@fields = User.required_parameters(:check)
+		{ fields: @fields }.to_json
 	end
 
-	# log a user if authentification succeed
+	## log a user if authentification succeed
 	#
 	# @param email [String]
 	# @param password [String]
 	# @return [String] a json string reprensenting a map with keys 'success' (boolean)
 	post :check do
-		user = User.authenticate(params[:email], params[:password])
-		set_current_user(user)
-		@check = { success: !!user }
+		@check = {}
+		unless current_user
+		  user = User.authenticate *( User.required_parameters(:check)[:keys].map { |k| params[k] } )
+			error 400, "Authentification Failure" unless user
+			set_current_user(user)
+			@check[:token] = user.tokenize_session.to_s
+		end
 		@check.to_json
 	end
 
 	## Log out
 
-	# log out from session
+	## log out from session
 	#
+	# @todo remove access_token from user's
 	delete :index do
+		ensure_authenticated!
+		current_user.disconnect_session! params[:token]
 		sign_out
+		blank_json
 	end
 
 end

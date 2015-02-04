@@ -18,6 +18,10 @@ module Lbem
 				rabl 'status/success'
 			end
 
+			def blank_json
+				'{}'
+			end
+
 		end # module Application
 
 		helpers ApplicationHelper
