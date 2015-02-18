@@ -1,12 +1,14 @@
 class User
 
   include Mongoid::Document
+  include Mongoid::Timestamps::Created
 
   field :email,     type: String
   field :password,  type: String
   field :nickname,  type: String
 
   has_many :access_tokens
+  has_many :events
 
   validates_presence_of   :email
   validates_uniqueness_of :email,     case_sensitive: false
@@ -117,7 +119,9 @@ class User
   ## create a user from params. Also it checks uniqueness first
   #
   # @param params [Hash] parameters provided by the user
-  # @return [Boolean] true if succeed, raise an exception otherwise
+  # @return [Boolean] true if succeed
+  # @raise [ArgumentError]
+  # @raise [Exception]
   def self.create_from_form(params)
     [
       { msg: 'Missing parameters',             rule: lambda { |p| ( required_parameters(:create)[:keys] - p.keys ).empty? } },
