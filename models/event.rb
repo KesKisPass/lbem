@@ -6,6 +6,7 @@ class Event < Localizable
   field :title,           type: String
   field :content,         type: String
   field :end,             type: Date
+  field :pubid,           type: String
 
   enumerize :visibility,  in: [ :sponsored, :public ],   default: :public
 
@@ -15,20 +16,18 @@ class Event < Localizable
   validates_presence_of   :title
   validates_presence_of   :user
 
-  scope :sponsored,       where(visibility: :sponsored)
-  scope :public,          where(visibility: :public)
+  before_create           :generate_pubid
 
-  def as_json
-    {
-      title: title,
-      content: content,
-      author: user.nickname,
-      created_at: created_at,
-      visibility: visibility,
-      latitude: latitude,
-      longitude: longitude
-    }.to_json
+  scope :sponsored,       where(visibility: :sponsored)
+  scope :common,          where(visibility: :public)
+
+  def as_json(options = {})
+    super( {only: [ :pubid, :title, :content, :latitude, :longitude ], methods: [:author, :date]}.merge options )
   end
+  def author() user; end
+  def date() { day: created_at.strftime('%Y-%m-%d'), time: created_at.strftime('%H-%M-%S'), now: true }; end
+
+# Creation
 
   def self.required_parameters
     {
@@ -46,7 +45,24 @@ class Event < Localizable
     params.keep_if { |k| required_parameters[:keys].include? k.to_s }
     params[:user] = user
     params[:coordinates] = [ params[:latitude].to_f, params[:longitude].to_f ]
-    create! params rescue Mongoid::Errors::Validations; raise ArgumentError, 'ArgumentError'
+    create! params
+  rescue Mongoid::Errors::Validations => e
+    raise ArgumentError, 'ArgumentError'
+  end
+
+  def self.delete_from_query(event_id, user)
+    user.events.find_by(pubid: event_id).delete
+  rescue Mongoid::Errors::DocumentNotFound => e
+    raise ArgumentError, 'ArgumentError, event not found'
+  end
+
+# Private
+
+  ## generates a new a small key used as public id
+  #
+  # @see SecureRandom.hex
+  def generate_pubid
+    self.pubid = SecureRandom.hex(4)
   end
 
 end

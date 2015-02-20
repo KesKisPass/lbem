@@ -22,6 +22,10 @@ class User
     "#{nickname} '#{email}'"
   end
 
+  def as_json(options = {})
+    super( {only: [ :nickname ]}.merge options )
+  end
+
 # Authentification
 
   ## Find a user by his email and password
