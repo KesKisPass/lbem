@@ -2,12 +2,28 @@ class ContactList
   include Mongoid::Document
   include Mongoid::Timestamps # adds created_at and updated_at fields
 
-  # field <name>, :type => <type>, :default => <value>
-  
+  has_and_belongs_to_many :users , inverse_of: nil
+  embedded_in :user
 
-  # You can define indexes on documents using the index macro:
-  # index :field <, :unique => true>
+  def nicknames
+    users.map(&:nickname)
+  end
 
-  # You can create a composite key in mongoid to replace the default id using the key macro:
-  # key :field <, :another_field, :one_more ....>
+  ## add new contact in current and new user
+  #
+  def add_contact(user_to_add)
+    self << user_to_add
+    user_to_add.contact_list << user
+  end
+
+  ## delete contact in current and old user
+  #
+  def remove_contact(user_to_delete)
+    users.delete(user_to_delete)
+    user_to_delete.contact_list.users.delete(user)
+  end
+
+  def <<(user_to_add)
+      users << user_to_add
+  end
 end
