@@ -7,6 +7,13 @@ class User
   field :password,  type: String
   field :nickname,  type: String
 
+
+  embeds_one :contact_list
+  after_initialize do |u|
+    u.build_contact_list unless u.contact_list
+  end
+
+
   has_many :access_tokens
   has_many :events
 
@@ -144,3 +151,5 @@ class User
   end
 
 end
+
+
