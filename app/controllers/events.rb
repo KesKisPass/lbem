@@ -31,7 +31,7 @@ Lbem::App.controllers :events do
 		ensure_authenticated!
 		ensure_himself!(params[:user_id])
 		@events = {
-			:public => current_user.events
+			:common => current_user.events
 		}
 		@events.to_json
 	end
