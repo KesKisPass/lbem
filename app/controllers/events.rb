@@ -21,18 +21,16 @@ Lbem::App.controllers :events do
 
 # user's
 
-	## retrieve events of the user
+	## retrieve events of a user
 	#
 	# @param user_id [String] user's nickname
-	# @return [JSON] array of events
+	# @return [JSON] array of visible events
 	#
 	# @route /users/:user_id/events
 	get :index, parent: :users do
 		ensure_authenticated!
-		ensure_himself!(params[:user_id])
-		@events = {
-			:public => current_user.events
-		}
+		contact = ensure_exists!(params[:user_id])
+		@events = contact.visible_events_for current_user
 		@events.to_json
 	end
 

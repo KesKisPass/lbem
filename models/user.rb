@@ -7,15 +7,9 @@ class User
   field :password,  type: String
   field :nickname,  type: String
 
-
+  has_many   :access_tokens
   embeds_one :contact_list
-  after_initialize do |u|
-    u.build_contact_list unless u.contact_list
-  end
-
-
-  has_many :access_tokens
-  has_many :events
+  has_many   :events
 
   validates_presence_of   :email
   validates_uniqueness_of :email,     case_sensitive: false
@@ -24,6 +18,10 @@ class User
   validates_presence_of   :nickname
   validates_uniqueness_of :nickname,  case_sensitive: true
   validates_format_of     :nickname,  with: /[A-Za-z]{1,10}/
+
+  after_initialize do |u|
+    u.build_contact_list unless u.contact_list
+  end
 
   def to_s
     "#{nickname} '#{email}'"
@@ -148,6 +146,31 @@ class User
     ( required_parameters(:create)[:keys] - ['password_confirmation'] ).each { |p| attributes[p] = params[p] }
     raise Exception, 'Internal server error' unless User.new(attributes).save
     true
+  end
+
+# Events
+
+  ## retrieve visible events for another user
+  #
+  # @param other [User] the user who want's to retrieve events
+  # @return [Hash] { common: [] }
+  def visible_events_for(other)
+    { common: events }
+  end
+
+# Contacts
+
+  ## tell if another user is a contact
+  #
+  # @param other [String] nickname of the aimed user
+  # @param other [User] aimed user
+  # @return [Boolean] is a contact
+  def contact?(other)
+    if other.is_a? String
+      contact_list.users.where(nickname: other).exists?
+    else
+      contact_list.users.where(nickname: other.nickname).exists?
+    end
   end
 
 end
