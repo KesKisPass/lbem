@@ -14,7 +14,8 @@ Lbem::App.controllers :events do
 		error 400, 'ArgumentError' if loc_params.any?(&:nil?)
 		@events = {
 			:common => Event.common.at_range(*loc_params),
-			:sponsored => Event.sponsored.at_range(*loc_params)
+			:sponsored => Event.sponsored.at_range(*loc_params),
+			:restricted => Event.restricted_with(current_user).at_range(*loc_params)
 		}
 		@events.to_json
 	end

@@ -153,12 +153,28 @@ class User
   ## retrieve visible events for another user
   #
   # @param other [User] the user who want's to retrieve events
-  # @return [Hash] { common: [] }
+  # @return [Hash] { common: [], restricted: [] }
   def visible_events_for(other)
-    { common: events }
+    {
+      common: events.common,
+      restricted: events.restricted_with(other)
+    }
   end
 
 # Contacts
+
+  ## tell if it's himself
+  #
+  # @param other [String] nickname of the aimed user
+  # @param other [User] aimed user
+  # @return [Boolean] is himself
+  def himself?(other)
+    if other.is_a? String
+      nickname == other
+    else
+      self == other
+    end
+  end
 
   ## tell if another user is a contact
   #

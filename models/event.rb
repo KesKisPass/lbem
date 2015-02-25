@@ -8,7 +8,7 @@ class Event < Localizable
   field :end,             type: Date
   field :pubid,           type: String
 
-  enumerize :visibility,  in: [ :sponsored, :public ],   default: :public
+  enumerize :visibility,  in: [ :sponsored, :common, :restricted ],   default: :common
 
   belongs_to :user
 
@@ -17,9 +17,12 @@ class Event < Localizable
   validates_presence_of   :user
 
   before_create           :generate_pubid
+  before_create           :not_sponsored! # for users
 
   scope :sponsored,       where(visibility: :sponsored)
-  scope :common,          where(visibility: :public)
+  scope :common,          where(visibility: :common)
+  scope :restricted,      where(visibility: :restricted)
+  scope :restricted_with, ->(user_asking){ restricted.or({:user_id.in => user_asking.contact_list.user_ids}, {user: user_asking}) }
 
   def as_json(options = {})
     super( {only: [ :pubid, :title, :content, :latitude, :longitude ], methods: [:author, :date]}.merge options )
@@ -31,8 +34,8 @@ class Event < Localizable
 
   def self.required_parameters
     {
-      keys: [ 'title', 'content', 'latitude', 'longitude' ],
-      names: [ 'Title', 'Content', 'Latitude', 'Longitude' ]
+      keys: [ 'title', 'content', 'latitude', 'longitude', 'visibility' ],
+      names: [ 'Title', 'Content', 'Latitude', 'Longitude', 'Visibility' ]
     }
   end
 
@@ -63,6 +66,13 @@ class Event < Localizable
   # @see SecureRandom.hex
   def generate_pubid
     self.pubid = SecureRandom.hex(4)
+  end
+
+  ## ensure a user didn't set the visibility of his event to sponsored
+  #
+  # @raise [ArgumentError]
+  def not_sponsored!
+    raise ArgumentError, 'This visibility is not available for users' if visibility.sponsored?
   end
 
 end
