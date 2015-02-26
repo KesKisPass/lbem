@@ -14,6 +14,8 @@ class User
 
 
   has_many :access_tokens
+  has_many :pending_contacts, inverse_of: :requestee
+  has_many :pending_contacts, inverse_of: :requester
 
   validates_presence_of   :email
   validates_uniqueness_of :email,     case_sensitive: false
@@ -141,6 +143,25 @@ class User
     raise Exception, 'Internal server error' unless User.new(attributes).save
     true
   end
+
+# Contacts
+
+  ## list users that asked the user to be friend
+  #
+  # @return [Array] users
+  def requesters
+    PendingContact.where( requestee_id: _id ).map(&:requester)
+  end
+
+  ## list users the user asked as friend
+  #
+  # @return [Array] users 
+  def requestees
+    PendingContact.where( requester_id: _id ).map(&:requestee)
+  end
+
+
+  
 
 end
 
