@@ -1,6 +1,6 @@
 class ContactList
   include Mongoid::Document
-#  include Mongoid::Timestamps::Create # adds created_at and updated_at fields
+  include Mongoid::Timestamps::Created # adds created_at and updated_at fields
 
   has_and_belongs_to_many :users , inverse_of: nil
   embedded_in :user
@@ -17,7 +17,10 @@ class ContactList
   #
   # @param user_to_invite [User] user to invite by current user
   def invite_contact(user_to_invite)
-    user.pending_contacts.create!( requestee: user_to_invite ) if user.pending_contacts.where(requestee_id: user_to_invite._id).length.zero? and users.where(_id: user_to_invite._id).length.zero? and !user._id.eql?(user_to_invite._id)
+    return if user._id == user_to_invite._id
+    alreadyInvited = user.pending_contacts.where(requestee_id: user_to_invite._id).length.zero?
+    alreadyInContactList = users.where(_id: user_to_invite._id).length.zero?
+    user.pending_contacts.create!( requestee: user_to_invite ) if alreadyInvited and alreadyInContactList
   end
 
   ## delete contact in current and old user

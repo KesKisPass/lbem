@@ -17,11 +17,13 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
     u = User.where(nickname: params[:nickname]).first
+    error 400, "User doesn't exists" if u.nil?
     begin
       current_user.contact_list.invite_contact(u)
     rescue
-      error 400, "User doesn't exist" if u.nil?
+      error 400, "Internal server error"
     end
+    blank_json
   end
 
   ## delete contact
@@ -31,7 +33,7 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
     u = User.where(nickname: params[:nickname]).first
-    error 400, "User doesn't exist" if u.nil?
+    error 400, "User doesn't exists" if u.nil?
     begin
       current_user.contact_list.remove_contact(u)
     rescue
@@ -46,9 +48,9 @@ Lbem::App.controllers :contact_lists, parent: :users  do
   get :pending do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
-    @requesters = current_user.requesters
-    @requestees = current_user.requestees
-    @PendingList = {requesters: @requesters, requestees: @requestees}
+    requesters = current_user.requesters
+    requestees = current_user.requestees
+    @PendingList = {requesters: requesters, requestees: requestees}
     @PendingList.to_json
   end
 
@@ -60,7 +62,7 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
     u = User.where(nickname: params[:nickname]).first
-    error 400, "User doesn't exist" if u.nil?
+    error 400, "User doesn't exists" if u.nil?
     begin
       current_user.contact_list.accept_invitation(u)
     rescue
@@ -76,7 +78,7 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
     u = User.where(nickname: params[:nickname]).first
-    error 400, "User doesn't exist" if u.nil?
+    error 400, "User doesn't exists" if u.nil?
     begin
       current_user.contact_list.cancel_invitation(u)
     rescue
