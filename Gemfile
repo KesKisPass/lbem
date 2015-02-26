@@ -1,39 +1,21 @@
 source 'https://rubygems.org'
 
-# Distribute your app as a gem
-# gemspec
-
-# Server requirements
-# gem 'thin' # or mongrel
-# gem 'trinidad', :platform => 'jruby'
-
-# Optional JSON codec (faster performance)
-# gem 'oj'
-
+## Code
 # Project requirements
 gem 'rake'
-
+gem 'pry'
 # Component requirements
 gem 'bcrypt'
 gem 'haml'
-gem 'mongoid', '~>3.0.0'
+gem 'mongoid', '~> 3.1.6'
 gem 'unicorn', '~>4.8.3'
 gem 'dotenv'
-
-gem 'pry'
-#require 'pry-padrino'
-
 # Test requirements
 gem 'rspec', :group => 'test'
 gem 'rack-test', :require => 'rack/test', :group => 'test'
-
 # Padrino Stable Gem
 gem 'padrino', '0.12.4'
 
-# Or Padrino Edge
-# gem 'padrino', :github => 'padrino/padrino-framework'
-
-# Or Individual Gems
-# %w(core support gen helpers cache mailer admin).each do |g|
-#   gem 'padrino-' + g, '0.12.4'
-# end
+## Core of the product
+# @check https://github.com/geokit/geokit
+gem 'enumerize'

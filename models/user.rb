@@ -1,21 +1,17 @@
 class User
 
   include Mongoid::Document
+  include Mongoid::Timestamps::Created
 
   field :email,     type: String
   field :password,  type: String
   field :nickname,  type: String
 
-
+  has_many   :access_tokens
   embeds_one :contact_list
-  after_initialize do |u|
-    u.build_contact_list unless u.contact_list
-  end
-
-
-  has_many :access_tokens
-  has_many :pending_contacts, inverse_of: :requestee
-  has_many :pending_contacts, inverse_of: :requester
+  has_many   :pending_contacts, inverse_of: :requestee
+  has_many   :pending_contacts, inverse_of: :requester
+  has_many   :events
 
   validates_presence_of   :email
   validates_uniqueness_of :email,     case_sensitive: false
@@ -25,8 +21,16 @@ class User
   validates_uniqueness_of :nickname,  case_sensitive: true
   validates_format_of     :nickname,  with: /[A-Za-z]{1,10}/
 
+  after_initialize do |u|
+    u.build_contact_list unless u.contact_list
+  end
+
   def to_s
     "#{nickname} '#{email}'"
+  end
+
+  def as_json(options = {})
+    super( {only: [ :nickname ]}.merge options )
   end
 
 # Authentification
@@ -126,7 +130,9 @@ class User
   ## create a user from params. Also it checks uniqueness first
   #
   # @param params [Hash] parameters provided by the user
-  # @return [Boolean] true if succeed, raise an exception otherwise
+  # @return [Boolean] true if succeed
+  # @raise [ArgumentError]
+  # @raise [Exception]
   def self.create_from_form(params)
     [
       { msg: 'Missing parameters',             rule: lambda { |p| ( required_parameters(:create)[:keys] - p.keys ).empty? } },
@@ -144,7 +150,46 @@ class User
     true
   end
 
+# Events
+
+  ## retrieve visible events for another user
+  #
+  # @param other [User] the user who want's to retrieve events
+  # @return [Hash] { common: [], restricted: [] }
+  def visible_events_for(other)
+    {
+      common: events.common,
+      restricted: events.restricted_with(other)
+    }
+  end
+
 # Contacts
+
+  ## tell if it's himself
+  #
+  # @param other [String] nickname of the aimed user
+  # @param other [User] aimed user
+  # @return [Boolean] is himself
+  def himself?(other)
+    if other.is_a? String
+      nickname == other
+    else
+      self == other
+    end
+  end
+
+  ## tell if another user is a contact
+  #
+  # @param other [String] nickname of the aimed user
+  # @param other [User] aimed user
+  # @return [Boolean] is a contact
+  def contact?(other)
+    if other.is_a? String
+      contact_list.users.where(nickname: other).exists?
+    else
+      contact_list.users.where(nickname: other.nickname).exists?
+    end
+  end
 
   ## list users that asked the user to be friend
   #
@@ -159,9 +204,6 @@ class User
   def requestees
     PendingContact.where( requester_id: _id ).map(&:requestee)
   end
-
-
-  
 
 end
 
