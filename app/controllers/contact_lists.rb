@@ -10,16 +10,17 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     @nicknames.to_json
   end
 
-  ## add new contact
+  ## invite contact
   #
   # @route /users/:user_id/contact_lists/contact/:nickname
   post :contact, :with => :nickname do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
-    u = User.where(nickname: params[:nickname]).first
-    error 400, "User doesn't exists" if u.nil?
     begin
+      u = User.find_by nickname: params[:nickname]
       current_user.contact_list.invite_contact(u)
+    rescue Mongoid::Errors::DocumentNotFound => e
+      error 400, "User doesn't exists"
     rescue
       error 400, "Internal server error"
     end
@@ -32,10 +33,11 @@ Lbem::App.controllers :contact_lists, parent: :users  do
   delete :contact, :with => :nickname do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
-    u = User.where(nickname: params[:nickname]).first
-    error 400, "User doesn't exists" if u.nil?
     begin
+      u = User.find_by nickname: params[:nickname]
       current_user.contact_list.remove_contact(u)
+    rescue Mongoid::Errors::DocumentNotFound => e
+      error 400, "User doesn't exists"
     rescue
       error 400, "Internal server error"
     end
@@ -44,27 +46,26 @@ Lbem::App.controllers :contact_lists, parent: :users  do
 
   ## show pending list
   #
-  # @route /users/:user_id/contact_lists/pending/
-  get :pending do
+  # @route /users/:user_id/contact_lists/pendings/
+  get :pendings do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
-    requesters = current_user.requesters
-    requestees = current_user.requestees
-    @PendingList = {requesters: requesters, requestees: requestees}
-    @PendingList.to_json
+    @pendings = { requesters: current_user.requesters, requestees: current_user.requestees }
+    @pendings.to_json
   end
 
 
   ## accept contact
   #
-  # @route /users/:user_id/contact_lists/pending/:nickname
-  get :pending, :with => :nickname do
+  # @route /users/:user_id/contact_lists/pendings/:nickname
+  get :pendings, :with => :nickname do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
-    u = User.where(nickname: params[:nickname]).first
-    error 400, "User doesn't exists" if u.nil?
     begin
+      u = User.find_by nickname: params[:nickname]
       current_user.contact_list.accept_invitation(u)
+    rescue Mongoid::Errors::DocumentNotFound => e
+      error 400, "User doesn't exists"
     rescue
       error 400, "Internal server error"
     end
@@ -73,14 +74,15 @@ Lbem::App.controllers :contact_lists, parent: :users  do
 
   ## refuse contact
   #
-  # @route /users/:user_id/contact_lists/pending/:nickname
-  delete :pending, :with => :nickname do
+  # @route /users/:user_id/contact_lists/pendings/:nickname
+  delete :pendings, :with => :nickname do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
-    u = User.where(nickname: params[:nickname]).first
-    error 400, "User doesn't exists" if u.nil?
     begin
+      u = User.find_by nickname: params[:nickname]
       current_user.contact_list.cancel_invitation(u)
+    rescue Mongoid::Errors::DocumentNotFound => e
+      error 400, "User doesn't exists"
     rescue
       error 400, "Internal server error"
     end
