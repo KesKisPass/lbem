@@ -3,11 +3,11 @@ module Lbem
 		module EventsHelper
 
 			def ensure_himself!(target_user)
-				error 403, 'Forbidden' unless himself?
+				error 403, 'Forbidden' unless himself?(target_user)
 			end
 
 			def ensure_trusted!(target_user)
-				error 403, 'Forbidden' unless himself? or contact?
+				error 403, 'Forbidden' unless himself?(target_user) or contact?(target_user)
 			end
 
 			def ensure_exists!(target_user)
