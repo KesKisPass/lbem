@@ -13,6 +13,11 @@ class ContactList
       users << user_to_add
   end
 
+  def as_json(options = {})
+    super( {except: [:_id, :created_at, :user_ids], methods: [:contacts]}.merge options )
+  end
+  def contacts() users; end
+
   ## invite contact
   #
   # @param user_to_invite [User] user to invite by current user

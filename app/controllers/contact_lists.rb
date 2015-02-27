@@ -6,8 +6,8 @@ Lbem::App.controllers :contact_lists, parent: :users  do
   get :index do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
-    @nicknames = current_user.contact_list.nicknames
-    @nicknames.to_json
+    @contact_list = current_user.contact_list
+    @contact_list.to_json
   end
 
   ## invite contact
