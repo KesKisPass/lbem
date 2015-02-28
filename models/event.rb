@@ -5,6 +5,7 @@ class Event < Localizable
 
   field :title,           type: String
   field :content,         type: String
+  field :picture_url,     type: String, default: nil
   field :end,             type: Date
   field :pubid,           type: String
 
@@ -34,8 +35,8 @@ class Event < Localizable
 
   def self.required_parameters
     {
-      keys: [ 'title', 'content', 'latitude', 'longitude', 'visibility' ],
-      names: [ 'Title', 'Content', 'Latitude', 'Longitude', 'Visibility' ]
+      keys: [ 'title', 'content', 'latitude', 'longitude', 'visibility', 'picture_url' ],
+      names: [ 'Title', 'Content', 'Latitude', 'Longitude', 'Visibility', 'Picture' ]
     }
   end
 
