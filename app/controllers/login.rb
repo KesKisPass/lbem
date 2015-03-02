@@ -63,8 +63,8 @@ Lbem::App.controllers :login do
 			set_current_user(user)
 			@check[:token] = user.tokenize_session.to_s
 		end
-		@check[:nickname] = current_user.nickname
-		@check.to_json
+		@check[:user] = current_user
+		@check.to_json({ include: [:companies, :jobs] })
 	end
 
 	## Log out

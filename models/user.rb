@@ -12,9 +12,11 @@ class User
 
   has_many   :access_tokens
   embeds_one :contact_list
-  has_many   :pending_contacts, inverse_of: :requestee
-  has_many   :pending_contacts, inverse_of: :requester
+  has_many   :pending_contacts,       inverse_of: :requestee
+  has_many   :pending_contacts,       inverse_of: :requester
   has_many   :events
+  has_and_belongs_to_many :companies, inverse_of: :owners
+  has_and_belongs_to_many :jobs,      inverse_of: :employees, class_name: 'Spot'
 
   validates_presence_of   :email
   validates_uniqueness_of :email,     case_sensitive: false
@@ -33,7 +35,13 @@ class User
   end
 
   def as_json(options = {})
-    super( {only: [ :nickname ]}.merge options )
+    _only    = [ :nickname ] + (options[:only] || [])
+    _methods = []            + (options[:methods] || [])
+    _include = {}
+
+    _include.merge!({ companies: {only: [ :name ]} })           if options[:include].try :include?, :companies
+    _include.merge!({ jobs:  {only: [ :name, :picture_url ]} }) if options[:include].try :include?, :jobs
+    super( only: _only, methods: _methods, include: _include )
   end
 
 # Authentification
