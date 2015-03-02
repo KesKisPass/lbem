@@ -19,10 +19,12 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     begin
       u = User.find_by nickname: params[:nickname]
       current_user.contact_list.invite_contact(u)
-    rescue Mongoid::Errors::DocumentNotFound => e
+    rescue ArgumentError => e
+      error 400, e.message
+    rescue Mongoid::Errors::DocumentNotFound
       error 400, "User doesn't exists"
     rescue
-      error 400, "Internal server error"
+      error 500, "Internal server error"
     end
     blank_json
   end
@@ -36,10 +38,12 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     begin
       u = User.find_by nickname: params[:nickname]
       current_user.contact_list.remove_contact(u)
-    rescue Mongoid::Errors::DocumentNotFound => e
+    rescue ArgumentError => e
+      error 400, e.message
+    rescue Mongoid::Errors::DocumentNotFound
       error 400, "User doesn't exists"
     rescue
-      error 400, "Internal server error"
+      error 500, "Internal server error"
     end
     blank_json
   end  
@@ -58,16 +62,18 @@ Lbem::App.controllers :contact_lists, parent: :users  do
   ## accept contact
   #
   # @route /users/:user_id/contact_lists/pendings/:nickname
-  get :pendings, :with => :nickname do
+  put :pendings, :with => :nickname do
     ensure_authenticated!
     ensure_himself!(params[:user_id])
     begin
       u = User.find_by nickname: params[:nickname]
       current_user.contact_list.accept_invitation(u)
-    rescue Mongoid::Errors::DocumentNotFound => e
+    rescue ArgumentError => e
+      error 400, e.message
+    rescue Mongoid::Errors::DocumentNotFound
       error 400, "User doesn't exists"
     rescue
-      error 400, "Internal server error"
+      error 500, "Internal server error"
     end
     blank_json
   end
@@ -81,10 +87,12 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     begin
       u = User.find_by nickname: params[:nickname]
       current_user.contact_list.cancel_invitation(u)
-    rescue Mongoid::Errors::DocumentNotFound => e
+    rescue ArgumentError => e
+      error 400, e.message
+    rescue Mongoid::Errors::DocumentNotFound
       error 400, "User doesn't exists"
     rescue
-      error 400, "Internal server error"
+      error 500, "Internal server error"
     end
     blank_json
   end
