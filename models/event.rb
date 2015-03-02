@@ -5,6 +5,7 @@ class Event < Localizable
 
   field :title,           type: String
   field :content,         type: String
+  field :picture_url,     type: String, default: nil
   field :pubid,           type: String
   field :begin,           type: Date #TODO
   field :end,             type: Date #TODO
@@ -30,7 +31,7 @@ class Event < Localizable
   scope :restricted_with, ->(user_asking){ restricted.or({:user_id.in => user_asking.contact_list.user_ids}, {user: user_asking}) }
 
   def as_json(options = {})
-    super( {only: [ :pubid, :title, :content, :latitude, :longitude ], methods: [:author, :date]}.merge options )
+    super( {only: [ :pubid, :title, :content, :latitude, :longitude, :picture_url ], methods: [:author, :date]}.merge options )
   end
   def date() { day: created_at.strftime('%Y-%m-%d'), time: created_at.strftime('%H-%M-%S'), now: true }; end
 
