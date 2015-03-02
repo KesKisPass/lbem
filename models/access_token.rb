@@ -14,6 +14,8 @@ class AccessToken
   validates_presence_of :token
   validates_uniqueness_of :token
 
+  index :token => 1
+
   def to_s
     token
   end

@@ -7,8 +7,10 @@ class Event < Localizable
   field :content,         type: String
   field :end,             type: Date
   field :pubid,           type: String
-
   enumerize :visibility,  in: [ :sponsored, :common, :restricted ],   default: :common
+
+  index :pubid => 1
+  index :visibility => 1
 
   belongs_to :user
 

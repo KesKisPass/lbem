@@ -7,6 +7,9 @@ class User
   field :password,  type: String
   field :nickname,  type: String
 
+  index :email => 1
+  index :nickname => 1
+
   has_many   :access_tokens
   embeds_one :contact_list
   has_many   :pending_contacts, inverse_of: :requestee
