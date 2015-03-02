@@ -14,7 +14,7 @@ class ContactList
   end
 
   def as_json(options = {})
-    super( {except: [:_id, :created_at, :user_ids], methods: [:contacts]}.merge options )
+    super({except: [:_id, :created_at, :user_ids], include: { users: {only: [:nickname]} }})
   end
   def contacts() users; end
 
