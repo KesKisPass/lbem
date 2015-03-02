@@ -28,7 +28,7 @@ class Event < Localizable
   scope :sponsored,       where(visibility: :sponsored)
   scope :common,          where(visibility: :common)
   scope :restricted,      where(visibility: :restricted)
-  scope :restricted_with, ->(user_asking){ restricted.or({:user_id.in => user_asking.contact_list.user_ids}, {user: user_asking}) }
+  scope :restricted_with, ->(user_asking){ restricted.or({:user_id.in => user_asking.contact_list.contact_ids}, {user: user_asking}) }
 
   def as_json(options = {})
     super( {only: [ :pubid, :title, :content, :latitude, :longitude, :picture_url ], methods: [:author, :date]}.merge options )
