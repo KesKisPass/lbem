@@ -5,6 +5,8 @@ class Company
 
   field :name
 
+  index :name => 1
+
   has_and_belongs_to_many :owners, class_name: 'User'
   has_many :spots
 

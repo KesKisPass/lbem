@@ -6,6 +6,9 @@ class Spot < Localizable
   field :picture_url,     type: String, default: nil
   field :address,         type: Array,  default: nil # Array of String: lineN, state, zip, city, country, whatever
 
+  index :name => 1
+  index :company => 1
+
   belongs_to :company
   has_and_belongs_to_many :employees,   class_name: 'User'
   has_many   :events
