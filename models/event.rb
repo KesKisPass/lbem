@@ -54,12 +54,12 @@ class Event < Localizable
   def self.required_parameters_as(author_type)
     {
       user: {
-          keys: [ 'title', 'content', 'latitude', 'longitude', 'visibility' ],
-          names: [ 'Title', 'Content', 'Latitude', 'Longitude', 'Visibility' ]
+          keys: [ 'title', 'content', 'latitude', 'longitude', 'visibility', 'picture_url' ],
+          names: [ 'Title', 'Content', 'Latitude', 'Longitude', 'Visibility', 'Picture' ]
       },
       spot: {
-          keys: [ 'title', 'content', 'latitude', 'longitude', 'visibility' ],
-          names: [ 'Title', 'Content', 'Latitude', 'Longitude', 'Visibility' ]
+          keys: [ 'title', 'content', 'latitude', 'longitude', 'visibility', 'picture_url' ],
+          names: [ 'Title', 'Content', 'Latitude', 'Longitude', 'Visibility', 'Picture' ]
       }
     }[ author_type ]
   end
