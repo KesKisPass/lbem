@@ -10,7 +10,7 @@ class ContactList
   end
 
   def as_json(options = {})
-    super({except: [:_id, :created_at, :user_ids], include: { contacts: {only: [:nickname]} }})
+    super({except: [:_id, :created_at, :contact_ids], include: { contacts: {only: [:nickname]} }})
   end
 
   ## invite contact
@@ -33,7 +33,7 @@ class ContactList
   # @raise [ArgumentError] if user_to_remove is not in contact_list
   # @return [TrueClass] if deleted
   def remove_contact(user_to_remove)
-    raise ArgumentError, 'Not a contact' unless contacts.where(_id: user_to_invite._id).exists?
+    raise ArgumentError, 'Not a contact' unless contacts.where(_id: user_to_remove._id).exists?
     contacts.delete(user_to_remove)
     user_to_remove.contact_list.contacts.delete(user)
     true
