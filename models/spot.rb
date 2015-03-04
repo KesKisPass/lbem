@@ -37,6 +37,9 @@ class Spot < Localizable
   # @raise [SecurityError] if user_asking not an employee
   def plan_event(params, user_asking)
     raise SecurityError, "User is not part of this spot" unless announcer?(user_asking)
+    params[:latitude] = latitude
+    params[:longitude] = longitude
+    Event.create_from_form(params, self)
   end
 
 # Employees

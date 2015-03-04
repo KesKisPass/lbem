@@ -88,6 +88,7 @@ Lbem::App.controllers :events do
   #
   # @param company_id [String] in route. Name of the company
   # @param spot_id [String] in route. Name of the spot
+  #
   # @route /companies/:company_id/spots/:spot_id/events
   get :index, parent: [:companies, :spots] do
     ensure_authenticated!
@@ -95,6 +96,42 @@ Lbem::App.controllers :events do
     spot = ensure_spot_exists! company, params[:spot_id]
     @events = { events: spot.events }
     @events.to_json
+  end
+
+  ## get form to plan event
+  #
+  # @param company_id [String] in route. Name of the company
+  # @param spot_id [String] in route. Name of the spot
+  # @return [JSON] form to fill
+  #
+  # @route /companies/:company_id/spots/:spot_id/events/form
+  get :form, parent: [:companies, :spots] do
+    ensure_authenticated!
+    company = ensure_company_exists! params[:company_id]
+    spot = ensure_spot_exists! company, params[:spot_id]
+    @fields = Event.required_parameters_as(:spot)
+    @fields.to_json
+  end
+
+  ## plan a new event
+  #
+  # @param company_id [String] in route. Name of the company
+  # @param spot_id [String] in route. Name of the spot
+  # @param fields* [String] the required ones
+  #
+  # @route /companies/:company_id/spots/:spot_id/events/form
+  post :form, parent: [:companies, :spots] do
+    ensure_authenticated!
+    company = ensure_company_exists! params[:company_id]
+    spot = ensure_spot_exists! company, params[:spot_id]
+    begin
+      spot.plan_event params
+      blank_json
+    rescue SecurityError => e
+      error 400, 'Not part of this spot'
+    rescue
+      error 500, 'Internal server error'
+    end
   end
 
 end

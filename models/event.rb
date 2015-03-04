@@ -20,7 +20,7 @@ class Event < Localizable
 
   validates_length_of     :title,       maximum: 32
   validates_presence_of   :title
-  validates_presence_of   :user
+  # validates_presence_of   :user
 
   before_create           :generate_pubid
   before_create           :not_sponsored! # for users
@@ -72,7 +72,8 @@ class Event < Localizable
   # @raise [ArgumentError]
   def self.create_from_form(params, user)
     params.keep_if { |k| required_parameters_as(user.class.to_s.downcase.to_sym)[:keys].include? k.to_s }
-    params[:user] = user
+    params[:user] = user if user.is_a? User
+    params[:spot] = user if user.is_a? Spot
     params[:coordinates] = [ params[:latitude].to_f, params[:longitude].to_f ]
     create! params
   rescue Mongoid::Errors::Validations => e
