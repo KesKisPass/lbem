@@ -125,10 +125,12 @@ Lbem::App.controllers :events do
     company = ensure_company_exists! params[:company_id]
     spot = ensure_spot_exists! company, params[:spot_id]
     begin
-      spot.plan_event params
+      spot.plan_event params, current_user
       blank_json
-    rescue SecurityError => e
-      error 400, 'Not part of this spot'
+    rescue SecurityError => se
+      error 400, se.message
+    rescue ArgumentError => ae
+      error 400, ae.message
     rescue
       error 500, 'Internal server error'
     end
