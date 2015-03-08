@@ -19,8 +19,12 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     begin
       u = User.find_by nickname: params[:nickname]
       current_user.contact_list.invite_contact(u)
-    rescue ArgumentError => e
-      error 400, e.message
+    rescue AlreadyAContactError => e_a_c_e 
+      error 422, eace.message # this is dirty fix
+    rescue AlreadyARequesterError => a_a_rer_e
+      error 423, eace.message # this is dirty fix
+    rescue AlreadyARequesteeError => a_a_ree_e 
+      error 424, eace.message # this is dirty fix
     rescue Mongoid::Errors::DocumentNotFound
       error 400, "User doesn't exists"
     rescue

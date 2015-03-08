@@ -1,4 +1,12 @@
 class ContactList
+
+  class ContactListError < StandardError; end
+  class ContactListInvitationError < ContactListError; end
+
+  class AlreadyAContactError < ContactListInvitationError; end
+  class AlreadyARequesterError < ContactListInvitationError; end
+  class AlreadyARequesteeError < ContactListInvitationError; end
+
   include Mongoid::Document
   include Mongoid::Timestamps::Created # adds created_at and updated_at fields
 
@@ -20,9 +28,9 @@ class ContactList
   # @return [TrueClass] if invited. Nil otherwhise
   def invite_contact(user_to_invite)
     return if user._id == user_to_invite._id
-    raise ArgumentError, 'Already a contact' if contacts.where(_id: user_to_invite._id).exists?
-    raise ArgumentError, 'You already asked this user' if user.pending_contacts.where(requestee_id: user_to_invite._id).exists?
-    raise ArgumentError, 'This user already asked you' if user.pending_contacts.where(requester_id: user_to_invite._id).exists?
+    raise AlreadyAContactError, 'Already a contact' if contacts.where(_id: user_to_invite._id).exists?
+    raise AlreadyARequesteeError, 'You already asked this user' if user.pending_contacts.where(requestee_id: user_to_invite._id).exists?
+    raise AlreadyARequesterError, 'This user already asked you' if user.pending_contacts.where(requester_id: user_to_invite._id).exists?
     user.pending_contacts.create!( requestee: user_to_invite )
     true
   end
