@@ -19,15 +19,16 @@ Lbem::App.controllers :contact_lists, parent: :users  do
     begin
       u = User.find_by nickname: params[:nickname]
       current_user.contact_list.invite_contact(u)
-    rescue AlreadyAContactError => e_a_c_e 
-      error 422, eace.message # this is dirty fix
-    rescue AlreadyARequesterError => a_a_rer_e
-      error 423, eace.message # this is dirty fix
-    rescue AlreadyARequesteeError => a_a_ree_e 
-      error 424, eace.message # this is dirty fix
+    rescue ContactList::AlreadyAContactError => e_a_c_e 
+      error 422, e_a_c_e.message # this is dirty fix
+    rescue ContactList::AlreadyARequesterError => a_a_rer_e
+      error 423, a_a_rer_e.message # this is dirty fix
+    rescue ContactList::AlreadyARequesteeError => a_a_ree_e 
+      error 424, a_a_ree_e.message # this is dirty fix
     rescue Mongoid::Errors::DocumentNotFound
       error 400, "User doesn't exists"
-    rescue
+    rescue Exception => e
+      puts e
       error 500, "Internal server error"
     end
     blank_json
